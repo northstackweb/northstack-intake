@@ -753,15 +753,68 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function submitForm() {
+  async function submitForm() {
     if (!validateStep(6)) return;
 
-    document.getElementById(`step-6`).classList.remove('active');
+    const submitBtn = document.querySelector('#step-6 .btn-primary');
+    submitBtn.textContent = 'Sending...';
+    submitBtn.disabled = true;
+
+    const pages = getChecked('pages');
+    const customers = getChecked('customer-types');
+    const vibe = getRadio('vibe');
+    const summary = buildSummary();
+
+    try {
+      await fetch('https://formspree.io/f/xnjrodva', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          _subject: `New website inquiry — ${val('biz-name')}`,
+          contact_name: val('contact-name'),
+          contact_email: val('contact-email'),
+          business_name: val('biz-name'),
+          industry: val('industry'),
+          location: val('location'),
+          years_in_business: val('years'),
+          business_description: val('biz-desc'),
+          differentiator: val('differentiator'),
+          customer_types: customers.join(', '),
+          gender_split: val('gender'),
+          customer_reach: val('reach'),
+          customer_problem: val('customer-problem'),
+          main_goal: val('main-goal'),
+          pages_needed: pages.join(', '),
+          extra_features: val('extra-features'),
+          vibe: vibe,
+          colors_liked: val('colors-like'),
+          colors_avoided: val('colors-avoid'),
+          sites_liked: val('sites-like'),
+          sites_disliked: val('sites-hate'),
+          tagline: val('tagline'),
+          services: val('services'),
+          about_story: val('about-story'),
+          photos: val('photos'),
+          logo: val('logo'),
+          social_media: val('social'),
+          domain: val('domain'),
+          hosting: val('hosting'),
+          self_edit: val('self-edit'),
+          budget: val('budget'),
+          launch_date: val('launch-date'),
+          unique_info: val('unique'),
+          better_than_competitors: val('better-than'),
+          anything_else: val('anything-else'),
+          full_summary: summary
+        })
+      });
+    } catch(e) {}
+
+    document.getElementById('step-6').classList.remove('active');
     document.getElementById('thank-you').style.display = 'block';
     document.getElementById('progress-bar').style.display = 'none';
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    const summary = buildSummary();
     document.getElementById('summary-box').textContent = summary;
     document.getElementById('summary-section').style.display = 'block';
   }
